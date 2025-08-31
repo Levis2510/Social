@@ -5,7 +5,10 @@ import Home from './pages/Home.jsx'
 import Explore from './pages/Explore.jsx'
 import PostDetail from './pages/PostDetail.jsx'
 import Login from './pages/Login.jsx'
+import ForgotPassword from "./pages/ForgotPassword"
+import ResetPassword from "./pages/ResetPassword"
 import Register from './pages/Register.jsx'
+import ProfileSetup from "./pages/ProfileSetup"
 import Profile from './pages/Profile.jsx'
 import Messages from './pages/Messages.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
@@ -25,18 +28,21 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/post/:id" element={<PostDetail />} />
-            {/* <Route
+            <Route
               path="/messages"
               element={
                 <ProtectedRoute isAuth={!!user}>
                   <Messages />
                 </ProtectedRoute>
               }
-            /> */}
-            <Route path="/messages" element={<Messages />} />
+            />
+            <Route path="/profile" element={<Profile />} />   {/*thêm tạm*/}
             <Route path="/profile/:id" element={<Profile />} />
             <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} /> 
             <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+            <Route path="/profile-setup" element={<ProfileSetup />} />
             <Route path="*" element={<Navigate to="/" />} />
             <Route path="/friends" element={<Friends />} />
           </Routes>

@@ -43,9 +43,9 @@ export default function Register() {
     }
 
     setLocalError('')
-    const success = await register({ name, email, password })
+    const success = await register({ username:name, email, password })
     if (success) {
-      navigate('/', { replace: true })
+      navigate('/profile-setup', { replace: true })
     }
   }
 

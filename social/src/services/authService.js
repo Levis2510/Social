@@ -1,11 +1,20 @@
 // src/services/authService.js
-import api from './api';
-
-// Đăng nhập
-export const loginService = (data) => api.post('/auth/login', data);
+import API from './api';
 
 // Đăng ký
-export const registerService = (data) => api.post('/auth/register', data);
+export const registerService = async (payload) => {
+  const res = await API.post('/api/register', payload);
+  return res.data;
+};
 
-// Lấy thông tin user đang đăng nhập
-export const meService = () => api.get('/auth/me');
+// Đăng nhập
+export const loginService = async (email, password) => {
+  const res = await API.post('/api/login', { email, password });
+  return res.data;
+};
+
+// Lấy thông tin user từ token
+export const meService = async () => {
+  const res = await API.get('/api/me');
+  return res.data;
+};

@@ -1,13 +1,14 @@
+// src/pages/Home.jsx
 import { useEffect } from 'react'
 import { usePostStore } from '../store/postStore'
 import PostForm from '../components/post/PostForm'
 import PostCard from '../components/post/PostCard'
 
-export default function Home() {
-  const { posts, fetchPosts, loading } = usePostStore() 
+export default function Home() {   // ✅ export default
+  const { posts, fetchPosts, loading } = usePostStore()
 
   useEffect(() => {
-    fetchPosts() 
+    fetchPosts()
   }, [fetchPosts])
 
   return (

@@ -49,7 +49,7 @@ export default function Messages() {
                 Đây là nơi hiển thị tin nhắn của {activeChat.name}
               </div>
             </div>
-
+          
             <form className="p-3 border-t flex gap-2">
               <input
                 type="text"
