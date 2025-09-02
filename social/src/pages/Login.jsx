@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 
 export default function Login() {
@@ -8,24 +8,24 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [remember, setRemember] = useState(false)
 
-  const { login, loading, error } = useAuthStore()
+  const { login, loading, error, user } = useAuthStore()
   const navigate = useNavigate()
 
-  const submit = async (e) => {
-    e.preventDefault()
-    const success = await login(email, password, remember)
-    if (success) {
-      const user = useAuthStore.getState().user
-      navigate(`/profile/${user.id}`, { replace: true }) // luôn chuyển về trang cá nhân
-    }
+const submit = async (e) => {
+  e.preventDefault();
+  const user = await login(email, password);
+
+  if (user) {
+    navigate(`/profile/${user.userId}`);
   }
+};
+
+
 
   return (
     <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow-sm border mt-10">
       <h2 className="text-2xl font-bold mb-4 text-center">Đăng nhập</h2>
       <form onSubmit={submit} className="space-y-4">
-
-        {/* Email */}
         <input
           type="email"
           required
@@ -35,7 +35,6 @@ export default function Login() {
           onChange={e => setEmail(e.target.value)}
         />
 
-        {/* Password với toggle 👁️ */}
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -54,7 +53,6 @@ export default function Login() {
           </button>
         </div>
 
-        {/* Remember me + Quên mật khẩu */}
         <div className="flex items-center justify-between text-sm">
           <label className="flex items-center gap-2">
             <input
@@ -67,10 +65,8 @@ export default function Login() {
           </label>
         </div>
 
-        {/* Error */}
         {error && <p className="text-red-600 text-sm">{error}</p>}
 
-        {/* Submit */}
         <button
           className="w-full bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700 disabled:opacity-60"
           disabled={loading}
@@ -78,6 +74,20 @@ export default function Login() {
           {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
         </button>
       </form>
+
+      <p className="text-sm text-center mt-4">
+        Chưa có tài khoản?{" "}
+        <Link to="/register" className="text-blue-600 hover:underline">
+          Đăng ký ngay
+        </Link>
+      </p>
+
+      <p className="text-sm text-center mt-4">
+        Bạn quên mật khẩu?{" "}
+        <Link to="/reset-password" className="text-blue-600 hover:underline">
+          Lấy lại mật khẩu
+        </Link>
+      </p>
     </div>
   )
 }

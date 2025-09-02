@@ -109,7 +109,7 @@ export default function Navbar() {
               {open && (
                 <div className="absolute right-0 top-12 w-48 bg-white border rounded-lg shadow-lg py-2 z-50 animate-fade-in">
                   <Link
-                    to={`/profile/${user._id}`}
+                    to={`/profile/${user.id}`} 
                     onClick={() => setOpen(false)}
                     className="block px-4 py-2 hover:bg-gray-100 text-gray-700"
                   >

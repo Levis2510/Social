@@ -20,7 +20,7 @@ export default function Sidebar() {
         {/* User info */}
         {user && (
           <Link 
-            to={`/profile/${user._id}`} 
+            to={`/profile/${user.id}`} 
             className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"
           >
             <img
@@ -53,4 +53,4 @@ export default function Sidebar() {
       </div>
     </aside>
   )
-}
+} 

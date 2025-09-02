@@ -12,24 +12,31 @@ export const useAuthStore = create((set, get) => ({
   token: localStorage.getItem('token') || null,
 
   // Đăng nhập
-  login: async (email, password) => {
-    set({ loading: true, error: null });
-    try {
-      const res = await loginService(email, password);
-      if (res.token) {
-        localStorage.setItem('token', res.token);
-        set({ user: res.user, token: res.token, loading: false });
-        return true;
-      }
-      throw new Error('Không nhận được token');
-    } catch (err) {
-      set({
-        error: err.response?.data?.message || err.message,
-        loading: false,
-      });
-      return false;
-    }
-  },
+login: async (email, password, remember) => {
+  set({ loading: true, error: null })
+  try {
+    const res = await fetch(
+      `http://localhost:5175/api/login?username=${email}&password=${password}`,
+      { method: "GET" }
+    )
+
+    if (!res.ok) throw new Error("Sai tài khoản hoặc mật khẩu")
+
+    const account = await res.json()
+    console.log("Response login:", account)
+    set({ user: account, token: account.token, loading: false })
+
+    const storage = remember ? localStorage : sessionStorage
+    storage.setItem("user", JSON.stringify(account))
+
+    return account // 👉 trả về object thay vì true
+  } catch (err) {
+    set({ error: err.message, loading: false })
+    return null
+  }
+},
+
+
 
   // Đăng ký
   register: async (payload) => {

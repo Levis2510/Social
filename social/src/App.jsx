@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import Navbar from './components/layout/Navbar.jsx'
 import Sidebar from './components/layout/Sidebar.jsx'
 import Home from './pages/Home.jsx'
@@ -16,7 +17,12 @@ import { useAuthStore } from './store/authStore.js'
 import Friends from "./pages/Friends"
 
 export default function App() {
-  const user = useAuthStore(s => s.user)
+  const { user, fetchMe, token } = useAuthStore()
+  useEffect(() => {
+    if (token && !user) {
+      fetchMe()
+    }
+  }, [token, user, fetchMe])
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -28,6 +34,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/post/:id" element={<PostDetail />} />
+
             <Route
               path="/messages"
               element={
@@ -36,15 +43,14 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/profile" element={<Profile />} />   {/*thêm tạm*/}
             <Route path="/profile/:id" element={<Profile />} />
             <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} /> 
             <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
-            <Route path="*" element={<Navigate to="/" />} />
             <Route path="/friends" element={<Friends />} />
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
       </div>

@@ -112,7 +112,7 @@ export default function Register() {
           {loading ? 'Đang tạo...' : 'Tạo tài khoản'}
         </button>
       </form>
-      <p className="text-sm text-gray-600 mt-3">
+      <p className="text-sm text-center text-gray-600 mt-3">
         Bạn đã có tài khoản?{' '}
         <Link to="/login" className="text-blue-600 hover:underline">
           Đăng nhập

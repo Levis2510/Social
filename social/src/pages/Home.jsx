@@ -1,28 +1,41 @@
-// src/pages/Home.jsx
-import { useEffect } from 'react'
-import { usePostStore } from '../store/postStore'
-import PostForm from '../components/post/PostForm'
-import PostCard from '../components/post/PostCard'
+import { useEffect, useState } from "react"
+import { useAuthStore } from "../store/authStore"
+import { useNavigate } from "react-router-dom"
 
-export default function Home() {   // ✅ export default
-  const { posts, fetchPosts, loading } = usePostStore()
+export default function Home() {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const { user } = useAuthStore()
+  const navigate = useNavigate()
 
   useEffect(() => {
-    fetchPosts()
-  }, [fetchPosts])
+    if (!user) {
+      navigate("/") // chưa login thì quay về login
+      return
+    }
+
+    const fetchData = async () => {
+      try {
+        // (4) lấy userID từ user
+        const res = await fetch(`http://localhost:5175/api/home/${user.id}`)
+        const result = await res.json()
+        setData(result)
+      } catch (err) {
+        console.error("Fetch home data error:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [user, navigate])
+
+  if (loading) return <p>Đang tải dữ liệu...</p>
 
   return (
-    <div className="space-y-4">
-      <PostForm />
-      {loading && <p>Loading...</p>}
-      <div className="space-y-4">
-        {posts.length === 0 && !loading && (
-          <p className="text-gray-500">Chưa có bài viết nào.</p>
-        )}
-        {posts.map((p) => (
-          <PostCard key={p._id || p.id} post={p} />
-        ))}
-      </div>
+    <div>
+      <h2>Trang chủ</h2>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
   )
 }
