@@ -1,8 +1,11 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 export default function Profile() {
   const { id } = useParams();
+  const navigate = useNavigate(); // ✅ hook đặt đầu tiên
+
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,10 +17,8 @@ export default function Profile() {
       try {
         setLoading(true);
         setError(null);
-
-        const res = await fetch(`http://localhost:5175/api/get_profile/${id}`);
+        const res = await fetch(`http://localhost:5175/api/get_profile/${60}`); //đang để tạm id 60
         if (!res.ok) throw new Error("Không thể tải dữ liệu người dùng");
-
         const data = await res.json();
         if (isMounted) setProfile(data);
       } catch (err) {
@@ -28,7 +29,6 @@ export default function Profile() {
     };
 
     if (id) fetchProfile();
-
     return () => { isMounted = false; };
   }, [id]);
 
@@ -36,8 +36,67 @@ export default function Profile() {
   if (error) return <p className="text-center text-red-500 py-10">❌ {error}</p>;
   if (!profile) return <p className="text-center py-10">Không tìm thấy người dùng</p>;
 
+  // Button Add Friend
+  const handleFriendClick = async () => {
+    if (!profile) return;
+
+    try {
+      if (profile.isPending) {
+        await fetch(`http://localhost:5175/api/friends/request/${id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        });
+        setProfile({ ...profile, isPending: false });
+      } else {
+        await fetch(`http://localhost:5175/api/friends/request/${id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        setProfile({ ...profile, isPending: true });
+      }
+    } catch (err) {
+      console.error("Friend request error:", err);
+    }
+  };
+
+  // Button Messages
+  const handleMessageClick = () => {
+    navigate("/messages"); // sau này có thể đổi thành `/messages/${id}`
+  };
+// Button Follows
+  const handleFollowClick = async () => {
+  if (!profile) return;
+
+  try {
+    if (profile.isFollowing) {
+      // Bỏ theo dõi
+      await fetch(`http://localhost:5175/api/follow/${id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      setProfile({
+        ...profile,
+        isFollowing: false,
+        followers: (profile.followers || 0) - 1,
+      });
+    } else {
+      // Theo dõi
+      await fetch(`http://localhost:5175/api/follow/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      setProfile({
+        ...profile,
+        isFollowing: true,
+        followers: (profile.followers || 0) + 1,
+      });
+    }
+  } catch (err) {
+    console.error("Follow error:", err);
+  }
+};
   return (
-    <div className="max-w-5xl mx-auto bg-white shadow rounded-lg overflow-hidden">
+    <div className="max-w-5xl mx-auto bg-fuchsia-100 text-black shadow rounded-lg overflow-hidden">
       {/* Cover */}
       <div className="w-full h-60 md:h-80 bg-gray-200 relative">
         {profile.coverUrl && (
@@ -52,7 +111,7 @@ export default function Profile() {
           <img
             src={profile.avatarUrl || '/default-avatar.png'}
             alt="avatar"
-            className="w-36 h-36 md:w-40 md:h-40 rounded-full border-4 border-white shadow-lg"
+            className="w-36 h-36 md:w-40 md:h-40 rounded-full border-4 border-black shadow-lg"
           />
         </div>
       </div>
@@ -61,7 +120,7 @@ export default function Profile() {
       <div className="mt-20 md:mt-24 px-5 flex flex-col items-center text-center">
         <h1 className="text-2xl font-bold">{profile.fullName}</h1>
         {profile.username && <p className="text-gray-500">@{profile.username}</p>}
-        <p className="text-gray-600 mt-2">{profile.bio || "Chưa có tiểu sử"}</p>
+        <p className="text-gray-600 mt-2"> {profile.bio || "Chưa có tiểu sử"}</p>
         <div className="flex gap-6 mt-4">
           <div>
             <p className="font-bold text-lg">{profile.posts || 0}</p>
@@ -79,24 +138,65 @@ export default function Profile() {
 
         {/* Buttons */}
         <div className="flex gap-2 mt-4">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700">
-            {profile.isFriend ? "Bạn bè" : "Thêm bạn bè"}
+          {/* Add Friend */}
+          <button
+            onClick={handleFriendClick}
+            disabled={profile.isFriend}
+          >
+            <motion.span
+              key={
+                profile.isFriend
+                  ? "friend"
+                  : profile.isPending
+                  ? "pending"
+                  : "add"
+              }
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className={`inline-block px-4 py-2 rounded-lg font-medium text-white
+                ${profile.isFriend 
+                  ? "bg-blue-400 cursor-default" 
+                  : profile.isPending 
+                    ? "bg-red-600 hover:bg-red-700" 
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
+            >
+              {profile.isFriend
+                ? "Bạn bè"
+                : profile.isPending
+                ? "Hủy lời mời"
+                : "Thêm bạn bè"}
+            </motion.span>
           </button>
-          <button className="border px-4 py-2 rounded-lg font-medium hover:bg-gray-100">
+
+          {/* Messages */}
+          <button
+            onClick={handleMessageClick}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700"
+          >
             Nhắn tin
           </button>
-          <button className="border px-4 py-2 rounded-lg font-medium hover:bg-gray-100">
-            Theo dõi
-          </button>
+           {/* Follows */}
+
+          <button
+            onClick={handleFollowClick}
+            className={`px-4 py-2 rounded-lg font-medium text-white 
+              ${profile.isFollowing 
+                ? "bg-blue-600 hover:bg-blue-700"  
+                : "bg-green-600 hover:bg-green-700" 
+              }`}
+>
+  {profile.isFollowing ? "Đang theo dõi" : "Theo dõi"}
+            </button>
         </div>
       </div>
+
       <div className="border-t mt-6 px-5">
         <nav className="flex gap-6 text-gray-600 font-medium justify-center">
-          <button className="py-3 border-b-2 border-blue-600 text-blue-600">Bài viết</button>
-          <button className="py-3 hover:text-blue-600">Giới thiệu</button>
+          <button className="py-3  hover:text-blue-600">Bài viết</button>
           <button className="py-3 hover:text-blue-600">Bạn bè</button>
-          <button className="py-3 hover:text-blue-600">Ảnh</button>
-          <button className="py-3 hover:text-blue-600">Video</button>
         </nav>
       </div>
 

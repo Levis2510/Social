@@ -7,20 +7,21 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [remember, setRemember] = useState(false)
-
-  const { login, loading, error, user } = useAuthStore()
+  const { login, loading, error } = useAuthStore()
   const navigate = useNavigate()
 
 const submit = async (e) => {
   e.preventDefault();
   const user = await login(email, password);
-
   if (user) {
-    navigate(`/profile/${user.userId}`);
+    const accountId = user.account_id || user.userId;
+    if (!accountId) {
+          console.error("Không tìm thấy account_id trong response:", user);
+      return;
+    }
+    navigate(`/profile/${accountId}`);
   }
 };
-
-
 
   return (
     <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow-sm border mt-10">
@@ -34,7 +35,6 @@ const submit = async (e) => {
           value={email}
           onChange={e => setEmail(e.target.value)}
         />
-
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}

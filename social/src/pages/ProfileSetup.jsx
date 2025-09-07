@@ -8,17 +8,19 @@ export default function ProfileSetup() {
   const [dob, setDob] = useState("")
   const [bio, setBio] = useState("")
   const [interests, setInterests] = useState("")
+  const [phone, setPhone] = useState("")
+  const [address, setAddress] = useState("")
   const [avatarPreview, setAvatarPreview] = useState(null)
   const [coverPreview, setCoverPreview] = useState(null)
-
+  const [avatarFile, setAvatarFile] = useState(null)
+  const [coverFile, setCoverFile] = useState(null)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-
   const navigate = useNavigate()
-
-  const handleImageChange = (e, setPreview) => {
+  const handleImageChange = (e, setPreview, setFile) => {
     const file = e.target.files[0]
     if (file) {
+      setFile(file) 
       const reader = new FileReader()
       reader.onloadend = () => setPreview(reader.result)
       reader.readAsDataURL(file)
@@ -30,30 +32,39 @@ export default function ProfileSetup() {
     setLoading(true)
 
     const token = localStorage.getItem("token")
-    const body = {
-      name,
-      gender,
-      dob,
-      bio,
-      interests,
-      avatar: avatarPreview,
-      cover: coverPreview,
-    }
-
+    const accountId = sessionStorage.getItem("userId") // phải cùng name
+    console.log("accountid" + accountId)
     try {
-      const res = await fetch(`http://localhost:5175/api/create_profile?${params.toString()}`, {
-  method: 'GET',
-  headers: {
-    "Authorization": `Bearer ${token}`,
-  },
+      const formData = new FormData()
+      formData.append("FullName", name) 
+      formData.append("Gender", gender)
+      formData.append("DateOfBirth", dob)
+      formData.append("Bio", bio)
+      formData.append("Phone", phone)
+      formData.append("Address", address)
+      formData.append("UserId", accountId || 1)
+      formData.append("AvatarUrl", "") 
+      formData.append("Interests", interests)
+
+      if (avatarFile) formData.append("img_avatar", avatarFile)
+      if (coverFile) formData.append("img_background", coverFile)
+
+      const res = await fetch("http://localhost:5175/api/create_profile", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        body: formData,
       })
 
-      if (!res.ok) throw new Error("Lỗi khi tạo hồ sơ")
-
-      navigate("/home") 
+      if (!res.ok) {
+        const errData = await res.text()
+        throw new Error(`Lỗi khi tạo hồ sơ: ${errData}`)
+      }
+      console.log(res)
+      navigate("/home")
     } catch (err) {
       console.error("Error:", err)
-      setError(err.message)
     } finally {
       setLoading(false)
     }
@@ -63,7 +74,7 @@ export default function ProfileSetup() {
     <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow-md mt-10">
       <h2 className="text-2xl font-bold mb-4">Thiết lập hồ sơ</h2>
 
-      {/* Step 1 */}
+      {/* Step 1: Thông tin cơ bản */}
       {step === 1 && (
         <div className="space-y-3">
           <input
@@ -104,7 +115,7 @@ export default function ProfileSetup() {
         </div>
       )}
 
-      {/* Step 2 */}
+      {/* Step 2: Bổ sung */}
       {step === 2 && (
         <div className="space-y-3">
           <textarea
@@ -120,6 +131,22 @@ export default function ProfileSetup() {
             className="w-full border rounded-lg p-3"
             value={interests}
             onChange={(e) => setInterests(e.target.value)}
+          />
+
+          <input
+            type="text"
+            placeholder="Số điện thoại"
+            className="w-full border rounded-lg p-3"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+
+          <input
+            type="text"
+            placeholder="Địa chỉ"
+            className="w-full border rounded-lg p-3"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
           />
 
           <div className="flex justify-between">
@@ -139,16 +166,17 @@ export default function ProfileSetup() {
         </div>
       )}
 
-      {/* Step 3 */}
+      {/* Step 3: Ảnh */}
       {step === 3 && (
         <div className="space-y-3">
-          {/* Avatar */}
           <div>
             <label className="block text-sm font-medium">Ảnh đại diện</label>
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => handleImageChange(e, setAvatarPreview)}
+              onChange={(e) =>
+                handleImageChange(e, setAvatarPreview, setAvatarFile)
+              }
             />
             {avatarPreview && (
               <img
@@ -159,13 +187,14 @@ export default function ProfileSetup() {
             )}
           </div>
 
-          {/* Cover */}
           <div>
             <label className="block text-sm font-medium">Ảnh bìa</label>
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => handleImageChange(e, setCoverPreview)}
+              onChange={(e) =>
+                handleImageChange(e, setCoverPreview, setCoverFile)
+              }
             />
             {coverPreview && (
               <img

@@ -14,7 +14,7 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 
-                      bg-white border-r border-gray-200 shadow-lg">
+              bg-white border-r border-gray-200 shadow-lg">
       <div className="p-4 space-y-4 flex-1 overflow-y-auto">
 
         {/* User info */}

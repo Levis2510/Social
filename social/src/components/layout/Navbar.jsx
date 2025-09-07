@@ -1,6 +1,7 @@
 import { Link, NavLink, useNavigate } from "react-router-dom"
 import { useAuthStore } from "../../store/authStore"
 import { useState, useRef, useEffect } from "react"
+import { Menu, X } from "lucide-react"
 
 export default function Navbar() {
   const { user, logout } = useAuthStore()
@@ -8,6 +9,8 @@ export default function Navbar() {
   const [query, setQuery] = useState("")
   const menuRef = useRef(null)
   const navigate = useNavigate()
+  const [userMenuOpen, setUserMenuOpen] = useState(false) 
+  const [mobileMenu, setMobileMenu] = useState(false)
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -24,6 +27,7 @@ export default function Navbar() {
     if (query.trim()) {
       navigate(`/search?q=${encodeURIComponent(query)}`)
       setQuery("")
+      if (mobileMenu) setMobileMenu(false)
     }
   }
 
@@ -35,8 +39,11 @@ export default function Navbar() {
           Social<span className="text-blue-600">.</span>
         </Link>
 
-        {/* Search */}
-        <form onSubmit={handleSearch} className="flex-1 max-w-md hidden sm:block">
+        {/* Search - ẩn ở mobile */}
+        <form
+          onSubmit={handleSearch}
+          className="flex-1 max-w-md hidden sm:block"
+        >
           <input
             type="text"
             value={query}
@@ -46,8 +53,16 @@ export default function Navbar() {
           />
         </form>
 
-        {/* Menu */}
-        <div className="flex items-center gap-4">
+        {/* Nút menu mobile */}
+        <button
+          className="sm:hidden p-2 rounded hover:bg-gray-100"
+          onClick={() => setMobileMenu(!mobileMenu)}
+        >
+          {mobileMenu ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        {/* Menu desktop */}
+        <div className="hidden sm:flex items-center gap-4">
           <NavLink
             to="/"
             className={({ isActive }) =>
@@ -89,15 +104,24 @@ export default function Navbar() {
         </div>
 
         {/* User / Auth */}
-        <div className="flex items-center gap-3 relative" ref={menuRef}>
+        <div
+          className="hidden sm:flex items-center gap-3 relative"
+          ref={menuRef}
+        >
           {user ? (
             <>
               <button
-                onClick={() => setOpen(!open)}
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="flex items-center gap-2 focus:outline-none"
               >
                 <img
-                  src={user.avatar || "https://ui-avatars.com/api/?name=" + user.name}
+                  src={
+                    user.avatar_url
+                      ? user.avatar_url
+                      : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                          user.name
+                        )}`
+                  }
                   alt="avatar"
                   className="w-8 h-8 rounded-full border"
                 />
@@ -106,11 +130,11 @@ export default function Navbar() {
                 </span>
               </button>
 
-              {open && (
+              {userMenuOpen && (
                 <div className="absolute right-0 top-12 w-48 bg-white border rounded-lg shadow-lg py-2 z-50 animate-fade-in">
                   <Link
-                    to={`/profile/${user.id}`} 
-                    onClick={() => setOpen(false)}
+                    to={`/profile/${user.id}`}
+                    onClick={() => setUserMenuOpen(false)}
                     className="block px-4 py-2 hover:bg-gray-100 text-gray-700"
                   >
                     Trang cá nhân
@@ -118,7 +142,8 @@ export default function Navbar() {
                   <button
                     onClick={() => {
                       logout()
-                      setOpen(false)
+                      setUserMenuOpen(false)
+                      navigate("/")
                     }}
                     className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
                   >
@@ -145,6 +170,84 @@ export default function Navbar() {
           )}
         </div>
       </nav>
+
+      {/* Mobile menu dropdown */}
+      {mobileMenu && (
+        <div className="sm:hidden border-t bg-white px-4 py-3 space-y-2">
+          <form onSubmit={handleSearch}>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Tìm kiếm..."
+              className="w-full px-3 py-1.5 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </form>
+
+          <NavLink
+            to="/"
+            onClick={() => setMobileMenu(false)}
+            className="block py-2 text-gray-700 hover:text-blue-600"
+          >
+            Trang chủ
+          </NavLink>
+          <NavLink
+            to="/explore"
+            onClick={() => setMobileMenu(false)}
+            className="block py-2 text-gray-700 hover:text-blue-600"
+          >
+            Khám phá
+          </NavLink>
+          {user && (
+            <NavLink
+              to="/messages"
+              onClick={() => setMobileMenu(false)}
+              className="block py-2 text-gray-700 hover:text-blue-600"
+            >
+              Tin nhắn
+            </NavLink>
+          )}
+
+          {user ? (
+            <>
+              <Link
+                to={`/profile/${user.id}`}
+                onClick={() => setMobileMenu(false)}
+                className="block py-2 text-gray-700 hover:text-blue-600"
+              >
+                Trang cá nhân
+              </Link>
+              <button
+                onClick={() => {
+                  logout()
+                  setMobileMenu(false)
+                  navigate("/")
+                }}
+                className="block w-full text-left py-2 text-gray-700 hover:text-blue-600"
+              >
+                Đăng xuất
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                onClick={() => setMobileMenu(false)}
+                className="block py-2 text-gray-700 hover:text-blue-600"
+              >
+                Đăng nhập
+              </Link>
+              <Link
+                to="/register"
+                onClick={() => setMobileMenu(false)}
+                className="block py-2 text-gray-700 hover:text-blue-600"
+              >
+                Đăng ký
+              </Link>
+            </>
+          )}
+        </div>
+      )}
     </header>
   )
 }
