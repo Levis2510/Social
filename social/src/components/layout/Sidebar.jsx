@@ -13,9 +13,8 @@ export default function Sidebar() {
   ]
 
   return (
-    <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 
-              bg-white border-r border-gray-200 shadow-lg">
-      <div className="p-4 space-y-4 flex-1 overflow-y-auto">
+    <aside className="hidden md:flex flex-col w-64 h-[calc(100vh-64px)]  bg-indigo-100 border-r border-gray-200 shadow-lg sticky top-16 left-0">
+    <div className="p-2 space-y-4 flex-1 overflow-y-auto">
 
         {/* User info */}
         {user && (

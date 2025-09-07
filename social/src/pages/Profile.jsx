@@ -1,10 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import PostCard from "../components/post/PostCard"; 
 
 export default function Profile() {
   const { id } = useParams();
-  const navigate = useNavigate(); // ✅ hook đặt đầu tiên
+  const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,7 +18,7 @@ export default function Profile() {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`http://localhost:5175/api/get_profile/${60}`); //đang để tạm id 60
+        const res = await fetch(`http://localhost:5175/api/get_profile/${60}`);
         if (!res.ok) throw new Error("Không thể tải dữ liệu người dùng");
         const data = await res.json();
         if (isMounted) setProfile(data);
@@ -36,7 +37,7 @@ export default function Profile() {
   if (error) return <p className="text-center text-red-500 py-10">❌ {error}</p>;
   if (!profile) return <p className="text-center py-10">Không tìm thấy người dùng</p>;
 
-  // Button Add Friend
+  // Add Friend
   const handleFriendClick = async () => {
     if (!profile) return;
 
@@ -59,44 +60,44 @@ export default function Profile() {
     }
   };
 
-  // Button Messages
+  // Messages
   const handleMessageClick = () => {
-    navigate("/messages"); // sau này có thể đổi thành `/messages/${id}`
+    navigate("/messages");
   };
-// Button Follows
-  const handleFollowClick = async () => {
-  if (!profile) return;
 
-  try {
-    if (profile.isFollowing) {
-      // Bỏ theo dõi
-      await fetch(`http://localhost:5175/api/follow/${id}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-      });
-      setProfile({
-        ...profile,
-        isFollowing: false,
-        followers: (profile.followers || 0) - 1,
-      });
-    } else {
-      // Theo dõi
-      await fetch(`http://localhost:5175/api/follow/${id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-      setProfile({
-        ...profile,
-        isFollowing: true,
-        followers: (profile.followers || 0) + 1,
-      });
+  // Follow
+  const handleFollowClick = async () => {
+    if (!profile) return;
+
+    try {
+      if (profile.isFollowing) {
+        await fetch(`http://localhost:5175/api/follow/${id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        });
+        setProfile({
+          ...profile,
+          isFollowing: false,
+          followers: (profile.followers || 0) - 1,
+        });
+      } else {
+        await fetch(`http://localhost:5175/api/follow/${id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        setProfile({
+          ...profile,
+          isFollowing: true,
+          followers: (profile.followers || 0) + 1,
+        });
+      }
+    } catch (err) {
+      console.error("Follow error:", err);
     }
-  } catch (err) {
-    console.error("Follow error:", err);
-  }
-};
+  };
+
   return (
-    <div className="max-w-5xl mx-auto bg-fuchsia-100 text-black shadow rounded-lg overflow-hidden">
+    <div className="max-w-6xl mx-auto bg-indigo-100 text-black shadow rounded-lg overflow-hidden">
       {/* Cover */}
       <div className="w-full h-60 md:h-80 bg-gray-200 relative">
         {profile.coverUrl && (
@@ -109,7 +110,7 @@ export default function Profile() {
         {/* Avatar */}
         <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2">
           <img
-            src={profile.avatarUrl || '/default-avatar.png'}
+            src={profile.avatarUrl || "/default-avatar.png"}
             alt="avatar"
             className="w-36 h-36 md:w-40 md:h-40 rounded-full border-4 border-black shadow-lg"
           />
@@ -120,10 +121,10 @@ export default function Profile() {
       <div className="mt-20 md:mt-24 px-5 flex flex-col items-center text-center">
         <h1 className="text-2xl font-bold">{profile.fullName}</h1>
         {profile.username && <p className="text-gray-500">@{profile.username}</p>}
-        <p className="text-gray-600 mt-2"> {profile.bio || "Chưa có tiểu sử"}</p>
+        <p className="text-gray-600 mt-2">{profile.bio || "Chưa có tiểu sử"}</p>
         <div className="flex gap-6 mt-4">
           <div>
-            <p className="font-bold text-lg">{profile.posts || 0}</p>
+            <p className="font-bold text-lg">{profile.posts?.length || 0}</p>
             <p className="text-gray-500 text-sm">Bài viết</p>
           </div>
           <div>
@@ -156,10 +157,10 @@ export default function Profile() {
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ duration: 0.2 }}
               className={`inline-block px-4 py-2 rounded-lg font-medium text-white
-                ${profile.isFriend 
-                  ? "bg-blue-400 cursor-default" 
-                  : profile.isPending 
-                    ? "bg-red-600 hover:bg-red-700" 
+                ${profile.isFriend
+                  ? "bg-blue-400 cursor-default"
+                  : profile.isPending
+                    ? "bg-red-600 hover:bg-red-700"
                     : "bg-green-600 hover:bg-green-700"
                 }`}
             >
@@ -178,37 +179,39 @@ export default function Profile() {
           >
             Nhắn tin
           </button>
-           {/* Follows */}
 
+          {/* Follow */}
           <button
             onClick={handleFollowClick}
             className={`px-4 py-2 rounded-lg font-medium text-white 
-              ${profile.isFollowing 
-                ? "bg-blue-600 hover:bg-blue-700"  
-                : "bg-green-600 hover:bg-green-700" 
+              ${profile.isFollowing
+                ? "bg-blue-600 hover:bg-blue-700"
+                : "bg-green-600 hover:bg-green-700"
               }`}
->
-  {profile.isFollowing ? "Đang theo dõi" : "Theo dõi"}
-            </button>
+          >
+            {profile.isFollowing ? "Đang theo dõi" : "Theo dõi"}
+          </button>
         </div>
       </div>
 
+      {/* Tabs */}
       <div className="border-t mt-6 px-5">
         <nav className="flex gap-6 text-gray-600 font-medium justify-center">
-          <button className="py-3  hover:text-blue-600">Bài viết</button>
+          <button className="py-3 hover:text-blue-600">Bài viết</button>
           <button className="py-3 hover:text-blue-600">Bạn bè</button>
         </nav>
       </div>
 
-      {/* Posts preview */}
-      <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
-        {(profile.postsData || []).map((post, index) => (
-          <div key={index} className="bg-gray-100 rounded-lg overflow-hidden">
-            <img src={post.imageUrl} alt={`post-${index}`} className="w-full h-40 object-cover" />
-          </div>
-        ))}
-        {(!profile.postsData || profile.postsData.length === 0) && (
-          <p className="text-gray-500 col-span-full text-center">Người dùng chưa có bài viết</p>
+      {/* Posts list */}
+      <div className="p-5 space-y-4">
+        {profile.posts && profile.posts.length > 0 ? (
+          profile.posts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))
+        ) : (
+          <p className="text-gray-500 text-center">
+            Người dùng chưa có bài viết
+          </p>
         )}
       </div>
     </div>
