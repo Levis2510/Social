@@ -15,7 +15,8 @@
 // import ProtectedRoute from './components/ProtectedRoute.jsx'
 // import { useAuthStore } from './store/authStore.js'
 // import Friends from "./pages/Friends"
-import Demo from "./pages/Demo"; //test demo
+   {/* Test post demo */}
+import Demo from "./pages/Demo"; 
 
 
 

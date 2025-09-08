@@ -1,28 +1,13 @@
 import { useState } from "react";
 import { MessageCircle, Heart, Share2 } from "lucide-react";
+import BoxComment from "./BoxComment";
 
 export default function PostCard({ post }) {
   const [showComments, setShowComments] = useState(false);
-  const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState(post.comments || []);
   const [likes, setLikes] = useState(post.likes || 0);
   const [liked, setLiked] = useState(false);
   const [shares, setShares] = useState(post.shares || 0);
-
-  const handleAddComment = () => {
-    if (!newComment.trim()) return;
-
-    const comment = {
-      user: {
-        name: "Bạn",
-        avatar: "https://ui-avatars.com/api/?name=Ban",
-      },
-      text: newComment.trim(),
-    };
-
-    setComments((prev) => [...prev, comment]);
-    setNewComment("");
-  };
 
   const toggleLike = () => {
     setLiked((prev) => !prev);
@@ -89,7 +74,7 @@ export default function PostCard({ post }) {
           {/* Comment */}
           <button
             className="flex items-center gap-1 hover:text-blue-600"
-            onClick={() => setShowComments((prev) => !prev)}
+            onClick={() => setShowComments(true)}
           >
             <MessageCircle size={18} />
             {comments.length}
@@ -104,48 +89,16 @@ export default function PostCard({ post }) {
             {shares}
           </button>
         </div>
-
-        {/* Comment Section */}
-        {showComments && (
-          <div className="mt-3 border-t pt-3 space-y-3">
-            {/* Danh sách comment */}
-            {comments.length > 0 ? (
-              comments.map((c, idx) => (
-                <div key={idx} className="flex items-start gap-2 text-sm">
-                  <img
-                    src={c.user.avatar}
-                    alt={c.user.name}
-                    className="w-6 h-6 rounded-full border"
-                  />
-                  <div className="bg-gray-100 p-2 rounded-lg">
-                    <span className="font-medium">{c.user.name}</span>{" "}
-                    {c.text}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-400 text-sm">Chưa có bình luận</p>
-            )}
-
-            {/* Ô nhập comment */}
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Viết bình luận..."
-                className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-              <button
-                onClick={handleAddComment}
-                className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
-              >
-                Gửi
-              </button>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Popup Comment */}
+      {showComments && (
+        <BoxComment
+          comments={comments}
+          setComments={setComments}
+          onClose={() => setShowComments(false)}
+        />
+      )}
     </div>
   );
 }
