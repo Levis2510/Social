@@ -9,32 +9,19 @@ export const useAuthStore = create((set, get) => ({
   user: null,
   loading: false,
   error: null,
-  token: sessionStorage.getItem('token') || localStorage.getItem('token') || null,
 
   // Đăng nhập
-  login: async (email, password, remember) => {
+  login: async (payload) => {
     set({ loading: true, error: null })
     try {
-      const res = await fetch(
-        `http://localhost:5175/api/login?username=${email}&password=${password}`,
-        { method: "GET" }
-      )
-
-      if (!res.ok) throw new Error("Sai tài khoản hoặc mật khẩu")
-
-      const account = await res.json()
-      console.log("👉 Response từ backend (account):", account)
-
-      // nếu backend trả về token
-      set({ user: account, token: account.token, loading: false })
-
-      const storage = remember ? localStorage : sessionStorage
-      storage.setItem("token", account.token)
-      storage.setItem("user", JSON.stringify(account))
-      storage.setItem("userId", account.account_id || account.accountId || account.userId);
-
-
-      return account
+      const res = await loginService(payload)
+      if(res.userId){
+        const userId = res.userId
+        if (userId) {
+        console.log(userId);
+      return userId
+}
+      }
     } catch (err) {
       set({ error: err.message, loading: false })
       return null

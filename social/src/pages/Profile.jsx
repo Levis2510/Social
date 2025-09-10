@@ -2,14 +2,27 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import PostCard from "../components/post/PostCard"; 
+import { meService } from "../services/authService";
 
 export default function Profile() {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [account_id, setAccountId] = useState(null);
+  
+    useEffect(() => {
+    const fetchAccountId = async () => {
+      try {
+        const user = await meService(); 
+        setAccountId(user?.account_id);
+      } catch (err) {
+        console.error("Không lấy được account_id", err);
+      }
+    };
+    fetchAccountId();
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -18,7 +31,7 @@ export default function Profile() {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`http://localhost:5175/api/get_profile/${60}`);
+        const res = await fetch(`/api/get_profile/${account_id}`);
         if (!res.ok) throw new Error("Không thể tải dữ liệu người dùng");
         const data = await res.json();
         if (isMounted) setProfile(data);
@@ -31,7 +44,7 @@ export default function Profile() {
 
     if (id) fetchProfile();
     return () => { isMounted = false; };
-  }, [id]);
+  }, [account_id, id]);
 
   if (loading) return <p className="text-center py-10">⏳ Đang tải...</p>;
   if (error) return <p className="text-center text-red-500 py-10">❌ {error}</p>;
@@ -43,13 +56,13 @@ export default function Profile() {
 
     try {
       if (profile.isPending) {
-        await fetch(`http://localhost:5175/api/friends/request/${id}`, {
+        await fetch(`/api/friends/request/${id}`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
         });
         setProfile({ ...profile, isPending: false });
       } else {
-        await fetch(`http://localhost:5175/api/friends/request/${id}`, {
+        await fetch(`/api/friends/request/${id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         });
@@ -71,7 +84,8 @@ export default function Profile() {
 
     try {
       if (profile.isFollowing) {
-        await fetch(`http://localhost:5175/api/follow/${id}`, {
+        await fetch(`
+          /api/follow/${id}`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
         });
@@ -81,7 +95,8 @@ export default function Profile() {
           followers: (profile.followers || 0) - 1,
         });
       } else {
-        await fetch(`http://localhost:5175/api/follow/${id}`, {
+        await fetch(`
+          /api/follow/${id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         });

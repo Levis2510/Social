@@ -49,7 +49,7 @@ export default function ProfileSetup() {
       if (avatarFile) formData.append("img_avatar", avatarFile)
       if (coverFile) formData.append("img_background", coverFile)
 
-      const res = await fetch("http://localhost:5175/api/create_profile", {
+      const res = await fetch("/api/create_profile", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

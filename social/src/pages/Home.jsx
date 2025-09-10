@@ -17,7 +17,7 @@ export default function Home() {
 
     const fetchData = async () => {
       try {
-        const res = await fetch(`http://localhost:5175/api/home/${user.id}`);
+        const res = await fetch(`/api/home/${user.id}`);
         const result = await res.json();
         setData(result);
       } catch (err) {
@@ -40,7 +40,7 @@ export default function Home() {
           data.posts.map((post) => <PostCard key={post.id} post={post} />)
         ) : (
            <div className="bg-white p-6 rounded-xl shadow-sm border text-center text-gray-500">
-      Chưa có bài viết nào
+              Chưa có bài viết nào
     </div>
         )}
       </div>

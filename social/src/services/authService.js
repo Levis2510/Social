@@ -1,4 +1,3 @@
-// src/services/authService.js
 import API from './api';
 
 // Đăng ký
@@ -8,8 +7,8 @@ export const registerService = async (payload) => {
 };
 
 // Đăng nhập
-export const loginService = async (email, password) => {
-  const res = await API.post('/api/login', { email, password });
+export const loginService = async (payload) => {
+ const res = await API.post(`/api/login`, payload);
   return res.data;
 };
 
