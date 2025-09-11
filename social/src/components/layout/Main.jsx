@@ -1,9 +1,14 @@
-export default function Main({ children }) {
+import { Outlet } from "react-router-dom";
+
+export default function Main({ isExpanded }) {
   return (
     <main
-      className=" flex-1 transition-all duration-300 md:ml-16 group-hover:ml-64 p-6 "
+      className="flex-1 p-6 transition-all duration-300 bg-gray-200 "
+      style={{
+        marginLeft: isExpanded ? "0" : "0", 
+      }}
     >
-      {children}
+      <Outlet />
     </main>
   );
 }

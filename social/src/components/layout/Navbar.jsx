@@ -32,7 +32,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className="border-b bg-indigo-100 sticky top-0 z-50">
+    <header className="border-b bg-stone-200 sticky top-0 z-50">
       <nav className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link to="/" className="font-bold text-xl whitespace-nowrap">

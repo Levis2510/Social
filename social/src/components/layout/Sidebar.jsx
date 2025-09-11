@@ -2,9 +2,8 @@ import { NavLink, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { Home, Compass, MessageCircle, Users } from "lucide-react";
 
-export default function Sidebar() {
+export default function Sidebar({ isExpanded, setIsExpanded }) {
   const { user } = useAuthStore();
-
   const menu = [
     { to: "/", label: "Bảng tin", icon: <Home className="w-5 h-5" /> },
     { to: "/explore", label: "Khám phá", icon: <Compass className="w-5 h-5" /> },
@@ -14,10 +13,12 @@ export default function Sidebar() {
 
   return (
     <aside
-        className=" group hidden md:block fixed top-16 left-0 h-[calc(100vh-64px)] bg-indigo-100 border-r border-gray-200 shadow-lg transition-all duration-300 w-16 hover:w-64 overflow-hidden "
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => setIsExpanded(false)}
+      className={`group hidden md:flex flex-col bg-stone-200 border-r border-black  shadow-lg transition-all duration-300 flex-shrink-0
+      ${isExpanded ? "w-64" : "w-16"}`}
     >
-      <div className="p-2 space-y-4 flex-1 overflow-y-auto ">
-        {/* User info */}
+      <div className="p-2 space-y-4 flex-1 overflow-y-auto">
         {user && (
           <Link
             to={`/profile/${user.id}`}
@@ -34,7 +35,6 @@ export default function Sidebar() {
           </Link>
         )}
 
-        {/* Menu */}
         <nav className="space-y-1">
           {menu.map((item) => (
             <NavLink
