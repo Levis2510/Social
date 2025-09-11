@@ -11,7 +11,6 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import Demo from "./pages/Demo";
 
 export default function App() {
   return (
@@ -26,8 +25,7 @@ export default function App() {
         <Route path="/profile/:id" element={<Profile />} />
         <Route path="/profile-setup" element={<ProfileSetup />} />
         <Route path="/post/:id" element={<PostDetail />} />
-        <Route path="/demo" element={<Demo />} />
-
+        
         {/* Các trang auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
