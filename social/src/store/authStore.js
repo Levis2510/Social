@@ -15,11 +15,13 @@ export const useAuthStore = create((set, get) => ({
     set({ loading: true, error: null })
     try {
       const res = await loginService(payload)
+     
       if(res.userId){
-        const userId = res.userId
-        if (userId) {
-        console.log(userId);
-      return userId
+        const user = res.user
+         sessionStorage.setItem("user", JSON.stringify(user))
+        if (user) {
+        console.log(user);
+      return user.userId
 }
       }
     } catch (err) {

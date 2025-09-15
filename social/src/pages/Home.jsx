@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/post/PostCard";
+import CreatePost from "../components/post/CreatePost";
 
 export default function Home() {
   const [data, setData] = useState(null);
@@ -29,6 +30,27 @@ export default function Home() {
 
     fetchData();
   }, [user, navigate]);
+  const handleAddPost = async (content) => {
+    try {
+      const res = await fetch("/api/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: user.id, content }),
+      });
+
+      const newPost = await res.json();
+
+      // Cập nhật danh sách bài viết ngay lập tức
+      setData((prev) => ({
+        ...prev,
+        posts: [newPost, ...(prev?.posts || [])],
+      }));
+    } catch (err) {
+      console.error("Tạo bài viết thất bại:", err);
+    }
+  };
 
   if (loading) return <p>Đang tải dữ liệu...</p>;
 

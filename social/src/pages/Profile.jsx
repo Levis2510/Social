@@ -15,8 +15,7 @@ export default function Profile() {
     useEffect(() => {
     const fetchAccountId = async () => {
       try {
-        const user = await meService(); 
-        setAccountId(user?.account_id);
+        setAccountId(id);
       } catch (err) {
         console.error("Không lấy được account_id", err);
       }
@@ -31,7 +30,7 @@ export default function Profile() {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`/api/get_profile/${account_id}`);
+        const res = await fetch(`http://localhost:5175/api/get_profile/${id}`);
         if (!res.ok) throw new Error("Không thể tải dữ liệu người dùng");
         const data = await res.json();
         if (isMounted) setProfile(data);
@@ -115,9 +114,9 @@ export default function Profile() {
     <div className="max-w-6xl mx-auto bg-indigo-100 text-black shadow rounded-lg overflow-hidden">
       {/* Cover */}
       <div className="w-full h-60 md:h-80 bg-gray-200 relative">
-        {profile.coverUrl && (
+        {profile.backgroundUrl && (
           <img
-            src={profile.coverUrl}
+            src={profile.backgroundUrl}
             alt="cover"
             className="w-full h-full object-cover"
           />

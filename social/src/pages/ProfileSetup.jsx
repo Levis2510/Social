@@ -27,48 +27,52 @@ export default function ProfileSetup() {
     }
   }
 
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
     setError(null)
     setLoading(true)
 
-    const token = localStorage.getItem("token")
     const accountId = sessionStorage.getItem("userId") // phải cùng name
-    console.log("accountid" + accountId)
     try {
       const formData = new FormData()
-      formData.append("FullName", name) 
+      // Thêm các trường thông tin cơ bản vào formData
+      formData.append("FullName", name)
       formData.append("Gender", gender)
       formData.append("DateOfBirth", dob)
       formData.append("Bio", bio)
       formData.append("Phone", phone)
       formData.append("Address", address)
-      formData.append("UserId", accountId || 1)
-      formData.append("AvatarUrl", "") 
-      formData.append("Interests", interests)
+      formData.append("UserId", accountId)  // Nếu không có accountId, mặc định là 1
+      formData.append("AvatarUrl", "")  // Nếu bạn có avatar mặc định, có thể bổ sung URL hoặc để trống
 
-      if (avatarFile) formData.append("img_avatar", avatarFile)
+      // Thêm ảnh nền và avatar nếu có
+      if (avatarFile) formData.append("img_avatar", avatarFile) 
       if (coverFile) formData.append("img_background", coverFile)
 
-      const res = await fetch("/api/create_profile", {
+      // Gửi dữ liệu đến API tạo hồ sơ
+      const res = await fetch("http://localhost:5175/api/create_profile", {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
         body: formData,
       })
 
+      // Kiểm tra nếu có lỗi từ server
       if (!res.ok) {
         const errData = await res.text()
         throw new Error(`Lỗi khi tạo hồ sơ: ${errData}`)
       }
-      console.log(res)
+
+      const responseData = await res.text()  
+      console.log("Server Response:", responseData)
+
+      // Điều hướng đến trang home sau khi tạo hồ sơ thành công
       navigate("/home")
     } catch (err) {
       console.error("Error:", err)
+      setError(err.message)  // Lưu thông báo lỗi vào state error
     } finally {
-      setLoading(false)
+      setLoading(false)  // Đảm bảo set loading = false sau khi hoàn thành
     }
-  }
+}
+
 
   return (
     <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow-md mt-10">

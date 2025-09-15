@@ -10,18 +10,15 @@ export default function Login() {
   const { login, loading, error } = useAuthStore()
   const navigate = useNavigate()
 
-const submit = async (e) => {
-  e.preventDefault();
-  const user = await login(email, password);
-  if (user) {
-    const accountId = user.account_id || user.userId;
-    if (!accountId) {
-          console.error("Không tìm thấy account_id trong response:", user);
+  const submit = async (e) => {
+    e.preventDefault();
+    const userId = await login({ email, password });
+    if (!userId) {
+      console.error("Không tìm thấy account_id trong response:", userId);
       return;
     }
-    navigate(`/profile/${accountId}`);
-  }
-};
+    navigate(`/profile/${userId}`);
+  };
 
   return (
     <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow-sm border mt-10">
